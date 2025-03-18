@@ -1,0 +1,475 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fragmenter package &mdash; fragmenter 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="fragmenter.data package" href="fragmenter.data.html" />
+    <link rel="prev" title="fragmenter" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            fragmenter
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">fragmenter</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">fragmenter package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fragmenter.fragmenter"><code class="docutils literal notranslate"><span class="pre">fragmenter</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#fragmenter.fragmenter.algorithm"><code class="docutils literal notranslate"><span class="pre">fragmenter.algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fragmenter.fragmenter.n_max_fragmentations_to_find"><code class="docutils literal notranslate"><span class="pre">fragmenter.n_max_fragmentations_to_find</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fragmenter.fragmenter.n_heavy_atoms_cuttoff"><code class="docutils literal notranslate"><span class="pre">fragmenter.n_heavy_atoms_cuttoff</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fragmenter.fragmenter.match_hydrogens"><code class="docutils literal notranslate"><span class="pre">fragmenter.match_hydrogens</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fragmenter.fragmenter.fragmentation_scheme"><code class="docutils literal notranslate"><span class="pre">fragmenter.fragmentation_scheme</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fragmenter.fragmenter.function_to_choose_fragmentation"><code class="docutils literal notranslate"><span class="pre">fragmenter.function_to_choose_fragmentation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fragmenter.fragmenter.fragmentation_scheme_order"><code class="docutils literal notranslate"><span class="pre">fragmenter.fragmentation_scheme_order</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fragmenter.fragmenter._fragmentation_scheme_group_number_lookup"><code class="docutils literal notranslate"><span class="pre">fragmenter._fragmentation_scheme_group_number_lookup</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fragmenter.fragmenter._fragmentation_scheme_pattern_lookup"><code class="docutils literal notranslate"><span class="pre">fragmenter._fragmentation_scheme_pattern_lookup</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fragmenter.fragmenter._adjacency_matrix_cache"><code class="docutils literal notranslate"><span class="pre">fragmenter._adjacency_matrix_cache</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fragmenter.fragmenter.Chem"><code class="docutils literal notranslate"><span class="pre">fragmenter.Chem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fragmenter.fragmenter.deep_copy"><code class="docutils literal notranslate"><span class="pre">fragmenter.deep_copy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fragmenter.fragmenter.fragment"><code class="docutils literal notranslate"><span class="pre">fragmenter.fragment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fragmenter.fragmenter.fragment_complete"><code class="docutils literal notranslate"><span class="pre">fragmenter.fragment_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fragmenter.fragmenter.get_adjacency_matrix"><code class="docutils literal notranslate"><span class="pre">fragmenter.get_adjacency_matrix()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fragmenter.fragmenter.get_heavy_atom_count"><code class="docutils literal notranslate"><span class="pre">fragmenter.get_heavy_atom_count()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fragmenter.fragmenter.get_substruct_matches"><code class="docutils literal notranslate"><span class="pre">fragmenter.get_substruct_matches()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fragmenter.fragmenter.marshal"><code class="docutils literal notranslate"><span class="pre">fragmenter.marshal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fragmenter.fragmenter.rdmolops"><code class="docutils literal notranslate"><span class="pre">fragmenter.rdmolops</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fragmenter.fragmenter.warnings"><code class="docutils literal notranslate"><span class="pre">fragmenter.warnings</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="fragmenter.data.html">fragmenter.data package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fragmenter.logging.html">fragmenter.logging package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fragmenter.utils.html">fragmenter.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-fragmenter.typing">fragmenter.typing module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#fragmenter.typing.SMARTS"><code class="docutils literal notranslate"><span class="pre">SMARTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fragmenter.typing.SMILES"><code class="docutils literal notranslate"><span class="pre">SMILES</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">fragmenter</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">fragmenter</a></li>
+      <li class="breadcrumb-item active">fragmenter package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/fragmenter.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-fragmenter">
+<span id="fragmenter-package"></span><h1>fragmenter package<a class="headerlink" href="#module-fragmenter" title="Link to this heading"></a></h1>
+<p>Algorithm for automatically fragmenting molecules into predefined groups</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="fragmenter.fragmenter">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fragmenter.</span></span><span class="sig-name descname"><span class="pre">fragmenter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">fragmentation_scheme:</span> <span class="pre">dict[int,</span> <span class="pre">list[str]</span> <span class="pre">|</span> <span class="pre">str]</span> <span class="pre">=</span> <span class="pre">{},</span> <span class="pre">fragmentation_scheme_order:</span> <span class="pre">list[int]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">match_hydrogens:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">algorithm:</span> <span class="pre">~typing.Literal['simple',</span> <span class="pre">'complete',</span> <span class="pre">'combined']</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">n_heavy_atoms_cuttoff:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">-1,</span> <span class="pre">function_to_choose_fragmentation:</span> <span class="pre">~collections.abc.Callable[[list[dict[str,</span> <span class="pre">list[tuple[int,</span> <span class="pre">...]]]]],</span> <span class="pre">dict[str,</span> <span class="pre">list[tuple[int,</span> <span class="pre">...]]]]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">fragmenter.&lt;lambda&gt;&gt;,</span> <span class="pre">n_max_fragmentations_to_find:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">-1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fragmenter.fragmenter" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for fragmenting molecules based on predefined SMARTS patterns and algorithms.</p>
+<p>This class provides methods to perform fragmentation on molecules using different algorithms
+(‘simple’, ‘complete’, or ‘combined’). It utilizes RDKit for chemical structure handling and supports
+deep copying of objects, adjacency matrix calculations, and recursive searches for complete fragmentations.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fragmenter.fragmenter.algorithm">
+<span class="sig-name descname"><span class="pre">algorithm</span></span><a class="headerlink" href="#fragmenter.fragmenter.algorithm" title="Link to this definition"></a></dt>
+<dd><p>The fragmentation algorithm to use.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fragmenter.fragmenter.n_max_fragmentations_to_find">
+<span class="sig-name descname"><span class="pre">n_max_fragmentations_to_find</span></span><a class="headerlink" href="#fragmenter.fragmenter.n_max_fragmentations_to_find" title="Link to this definition"></a></dt>
+<dd><p>Maximum number of fragmentations to find.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fragmenter.fragmenter.n_heavy_atoms_cuttoff">
+<span class="sig-name descname"><span class="pre">n_heavy_atoms_cuttoff</span></span><a class="headerlink" href="#fragmenter.fragmenter.n_heavy_atoms_cuttoff" title="Link to this definition"></a></dt>
+<dd><p>Heavy atom cutoff for fragmentation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fragmenter.fragmenter.match_hydrogens">
+<span class="sig-name descname"><span class="pre">match_hydrogens</span></span><a class="headerlink" href="#fragmenter.fragmenter.match_hydrogens" title="Link to this definition"></a></dt>
+<dd><p>Whether to consider hydrogens during matching.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fragmenter.fragmenter.fragmentation_scheme">
+<span class="sig-name descname"><span class="pre">fragmentation_scheme</span></span><a class="headerlink" href="#fragmenter.fragmenter.fragmentation_scheme" title="Link to this definition"></a></dt>
+<dd><p>Mapping of group numbers to SMARTS patterns or lists of SMARTS patterns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fragmenter.fragmenter.function_to_choose_fragmentation">
+<span class="sig-name descname"><span class="pre">function_to_choose_fragmentation</span></span><a class="headerlink" href="#fragmenter.fragmenter.function_to_choose_fragmentation" title="Link to this definition"></a></dt>
+<dd><p>Function used to select the best fragmentation from multiple options.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fragmenter.fragmenter.fragmentation_scheme_order">
+<span class="sig-name descname"><span class="pre">fragmentation_scheme_order</span></span><a class="headerlink" href="#fragmenter.fragmenter.fragmentation_scheme_order" title="Link to this definition"></a></dt>
+<dd><p>Order in which to search for fragmentation groups.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fragmenter.fragmenter._fragmentation_scheme_group_number_lookup">
+<span class="sig-name descname"><span class="pre">_fragmentation_scheme_group_number_lookup</span></span><a class="headerlink" href="#fragmenter.fragmenter._fragmentation_scheme_group_number_lookup" title="Link to this definition"></a></dt>
+<dd><p>Lookup mapping SMARTS patterns to group numbers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fragmenter.fragmenter._fragmentation_scheme_pattern_lookup">
+<span class="sig-name descname"><span class="pre">_fragmentation_scheme_pattern_lookup</span></span><a class="headerlink" href="#fragmenter.fragmenter._fragmentation_scheme_pattern_lookup" title="Link to this definition"></a></dt>
+<dd><p>Lookup mapping SMARTS patterns to RDKit Mol objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fragmenter.fragmenter._adjacency_matrix_cache">
+<span class="sig-name descname"><span class="pre">_adjacency_matrix_cache</span></span><a class="headerlink" href="#fragmenter.fragmenter._adjacency_matrix_cache" title="Link to this definition"></a></dt>
+<dd><p>Cache for storing computed adjacency matrices keyed by canonical SMILES.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fragmenter.fragmenter.Chem">
+<span class="sig-name descname"><span class="pre">Chem</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;module</span> <span class="pre">'rdkit.Chem'</span> <span class="pre">from</span> <span class="pre">'/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/rdkit/Chem/__init__.py'&gt;</span></em><a class="headerlink" href="#fragmenter.fragmenter.Chem" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fragmenter.fragmenter.deep_copy">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deep_copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">T</span></span></span><a class="headerlink" href="#fragmenter.fragmenter.deep_copy" title="Link to this definition"></a></dt>
+<dd><p>Perform a deep copy of an object using marshal serialization.</p>
+<p>This method is based on the approach described in:
+<a class="reference external" href="https://stackoverflow.com/questions/24756712/deepcopy-is-extremely-slow">https://stackoverflow.com/questions/24756712/deepcopy-is-extremely-slow</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> – The object to deep copy.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A deep copy of the input object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fragmenter.fragmenter.fragment">
+<span class="sig-name descname"><span class="pre">fragment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">SMILES_or_molecule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fragmenter.fragmenter.fragment" title="Link to this definition"></a></dt>
+<dd><p>Fragment a molecule using the configured fragmentation scheme and algorithm.</p>
+<p>This method processes the molecule—converting from a SMILES string if necessary—and applies the
+fragmentation algorithm to each disconnected fragment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>SMILES_or_molecule</strong> (<em>str</em><em> or </em><em>Mol</em>) – The molecule to fragment, provided as a SMILES string or an RDKit Mol object.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing:</dt><dd><ul class="simple">
+<li><p>fragmentation (dict): Mapping of group numbers to counts of matches found.</p></li>
+<li><p>success (bool): True if the fragmentation was successful (i.e., all atoms were assigned), False otherwise.</p></li>
+<li><p>fragmentation_matches (dict): Mapping of group numbers to lists of match tuples (atom index sequences).</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If a provided SMILES string is invalid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fragmenter.fragmenter.fragment_complete">
+<span class="sig-name descname"><span class="pre">fragment_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">SMILES_or_molecule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Mol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fragmenter.fragmenter.fragment_complete" title="Link to this definition"></a></dt>
+<dd><p>Perform complete fragmentation on a single-fragment molecule.</p>
+<p>This method only accepts molecules with a single connected component and attempts to find
+all possible complete fragmentations that cover the entire molecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>SMILES_or_molecule</strong> (<em>str</em><em> or </em><em>Mol</em>) – The molecule to fragment, provided as a SMILES string or an RDKit Mol object.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing:</dt><dd><ul class="simple">
+<li><p>fragmentations (list): A list of dictionaries mapping group numbers to counts of matches in each complete fragmentation.</p></li>
+<li><p>success (bool): True if at least one complete fragmentation was found, False otherwise.</p></li>
+<li><p>fragmentations_matches (list): A list of dictionaries mapping group numbers to lists of match tuples for each fragmentation.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If a provided SMILES string is invalid or if the molecule consists of multiple fragments.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fragmenter.fragmenter.get_adjacency_matrix">
+<span class="sig-name descname"><span class="pre">get_adjacency_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canonical_SMILES</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#fragmenter.fragmenter.get_adjacency_matrix" title="Link to this definition"></a></dt>
+<dd><p>Compute and cache the adjacency matrix for a molecule.</p>
+<p>The adjacency matrix is represented as a list of sets, where each set contains the indices of neighboring atoms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> – An RDKit Mol object for which to compute the adjacency matrix.</p></li>
+<li><p><strong>canonical_SMILES</strong> (<em>str</em>) – The canonical SMILES representation of the molecule used as a cache key.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of sets, each representing the neighboring atom indices for each atom in the molecule.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fragmenter.fragmenter.get_heavy_atom_count">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_heavy_atom_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fragmenter.fragmenter.get_heavy_atom_count" title="Link to this definition"></a></dt>
+<dd><p>Count the number of heavy (non-hydrogen) atoms in a molecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mol</strong> – An RDKit molecule object.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The count of heavy atoms in the molecule.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fragmenter.fragmenter.get_substruct_matches">
+<span class="sig-name descname"><span class="pre">get_substruct_matches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol_searched_for</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mol_searched_in</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canonical_SMILES_searched_in</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_indices_to_which_new_matches_have_to_be_adjacent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#fragmenter.fragmenter.get_substruct_matches" title="Link to this definition"></a></dt>
+<dd><p>Retrieve substructure matches from a molecule that are adjacent to specified atom indices.</p>
+<p>This method performs a substructure search and then filters the matches to include only those that are
+adjacent to the provided set of atom indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol_searched_for</strong> – An RDKit Mol representing the substructure pattern to search for.</p></li>
+<li><p><strong>mol_searched_in</strong> – An RDKit Mol in which to search for the substructure.</p></li>
+<li><p><strong>canonical_SMILES_searched_in</strong> (<em>str</em>) – The canonical SMILES representation of the molecule (used for caching).</p></li>
+<li><p><strong>atom_indices_to_which_new_matches_have_to_be_adjacent</strong> (<em>set</em>) – Set of atom indices; new matches must be adjacent
+to at least one of these atoms.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A list of tuples, where each tuple contains the atom indices corresponding to a matching substructure.</dt><dd><p>Returns an empty list if no matches are found or if the molecule is too small.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fragmenter.fragmenter.marshal">
+<span class="sig-name descname"><span class="pre">marshal</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;module</span> <span class="pre">'marshal'</span> <span class="pre">(built-in)&gt;</span></em><a class="headerlink" href="#fragmenter.fragmenter.marshal" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fragmenter.fragmenter.rdmolops">
+<span class="sig-name descname"><span class="pre">rdmolops</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;module</span> <span class="pre">'rdkit.Chem.rdmolops'</span> <span class="pre">from</span> <span class="pre">'/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/site-packages/rdkit/Chem/rdmolops.so'&gt;</span></em><a class="headerlink" href="#fragmenter.fragmenter.rdmolops" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fragmenter.fragmenter.warnings">
+<span class="sig-name descname"><span class="pre">warnings</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;module</span> <span class="pre">'warnings'</span> <span class="pre">from</span> <span class="pre">'/opt/hostedtoolcache/Python/3.12.8/x64/lib/python3.12/warnings.py'&gt;</span></em><a class="headerlink" href="#fragmenter.fragmenter.warnings" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="fragmenter.data.html">fragmenter.data package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fragmenter.logging.html">fragmenter.logging package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fragmenter.logging.html#fragmenter.logging.catch_default_handler"><code class="docutils literal notranslate"><span class="pre">catch_default_handler</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="fragmenter.logging.html#fragmenter.logging.disable_default_handler"><code class="docutils literal notranslate"><span class="pre">disable_default_handler()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="fragmenter.logging.html#fragmenter.logging.enable_default_handler"><code class="docutils literal notranslate"><span class="pre">enable_default_handler()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="fragmenter.logging.html#fragmenter.logging.get_child_logger"><code class="docutils literal notranslate"><span class="pre">get_child_logger()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="fragmenter.logging.html#fragmenter.logging.get_handler"><code class="docutils literal notranslate"><span class="pre">get_handler()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="fragmenter.logging.html#fragmenter.logging.get_root_logger"><code class="docutils literal notranslate"><span class="pre">get_root_logger()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fragmenter.utils.html">fragmenter.utils package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fragmenter.utils.html#fragmenter.utils.draw_mol_with_highlights_and_legend"><code class="docutils literal notranslate"><span class="pre">draw_mol_with_highlights_and_legend()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="fragmenter.utils.html#fragmenter.utils.get_table_with_atom_properties_relevant_to_SMARTS"><code class="docutils literal notranslate"><span class="pre">get_table_with_atom_properties_relevant_to_SMARTS()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="fragmenter.utils.html#fragmenter.utils.get_text_size"><code class="docutils literal notranslate"><span class="pre">get_text_size()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-fragmenter.typing">
+<span id="fragmenter-typing-module"></span><h2>fragmenter.typing module<a class="headerlink" href="#module-fragmenter.typing" title="Link to this heading"></a></h2>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fragmenter.typing.SMARTS">
+<span class="sig-prename descclassname"><span class="pre">fragmenter.typing.</span></span><span class="sig-name descname"><span class="pre">SMARTS</span></span><a class="headerlink" href="#fragmenter.typing.SMARTS" title="Link to this definition"></a></dt>
+<dd><p>SMARTS type</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fragmenter.typing.SMILES">
+<span class="sig-prename descclassname"><span class="pre">fragmenter.typing.</span></span><span class="sig-name descname"><span class="pre">SMILES</span></span><a class="headerlink" href="#fragmenter.typing.SMILES" title="Link to this definition"></a></dt>
+<dd><p>SMILES type</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules.html" class="btn btn-neutral float-left" title="fragmenter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="fragmenter.data.html" class="btn btn-neutral float-right" title="fragmenter.data package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, yu9824.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

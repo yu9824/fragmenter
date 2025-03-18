@@ -1,0 +1,7 @@
+fragmenter.logging package
+==========================
+
+.. automodule:: fragmenter.logging
+   :members:
+   :show-inheritance:
+   :undoc-members:

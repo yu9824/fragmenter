@@ -1,0 +1,28 @@
+fragmenter package
+==================
+
+.. automodule:: fragmenter
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   fragmenter.data
+   fragmenter.logging
+   fragmenter.utils
+
+Submodules
+----------
+
+fragmenter.typing module
+------------------------
+
+.. automodule:: fragmenter.typing
+   :members:
+   :show-inheritance:
+   :undoc-members:

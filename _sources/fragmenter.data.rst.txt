@@ -1,0 +1,7 @@
+fragmenter.data package
+=======================
+
+.. automodule:: fragmenter.data
+   :members:
+   :show-inheritance:
+   :undoc-members:
