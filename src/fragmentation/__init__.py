@@ -5,4 +5,6 @@ __license__ = "MIT"
 __author__ = "yu9824"
 __copyright__ = "Copyright (c) 2019 Simon, yu9824"
 
-# __all__ = ()
+from ._core import fragmenter
+
+__all__ = ("fragmenter",)
