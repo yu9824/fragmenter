@@ -668,6 +668,7 @@ with open(
     for inchikey, SMILES, pubchem_id, empty_fragmentation in tqdm(
         structures_DB, total=len(structures_DB)
     ):
+        # FIXME: cause error when smiles == 'F[Kr]F'
         fragmentation, success, fragmentation_matches = (
             combined_fragmenter.fragment(SMILES)
         )
