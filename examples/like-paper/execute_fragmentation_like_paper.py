@@ -1,4 +1,5 @@
 import operator
+from pathlib import Path
 
 from rdkit import Chem
 from tqdm import tqdm
@@ -6,6 +7,8 @@ from tqdm import tqdm
 from fragmenter import fragmenter
 from fragmenter.data import SMARTS_UNIFAC
 from fragmenter.utils import draw_mol_with_highlights_and_legend
+
+DIRPATH_CSV = Path(__file__).parent.resolve()
 
 
 def info_to_CSV(inchikey, SMILES, pubchem_id, fragmentation):
@@ -287,7 +290,7 @@ if set(sorted_group_names_as_in_paper).union(
 
 # first step: fragment reference database and compare with the results
 reference_DB = []
-with open("reference_DB.csv") as f:
+with open(DIRPATH_CSV / "reference_DB.csv", mode="r", encoding="utf-8") as f:
     for line in f.readlines():
         reference_DB.append(CSV_to_info(line, True))
 
@@ -626,7 +629,7 @@ print("")
 
 # second step: try to fragent all from the component
 structures_DB = []
-with open("structures_DB.csv") as f:
+with open(DIRPATH_CSV / "structures_DB.csv", mode="r", encoding="utf-8") as f:
     for line in f.readlines():
         structures_DB.append(CSV_to_info(line))
 
