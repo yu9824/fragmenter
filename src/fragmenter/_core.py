@@ -1,9 +1,4 @@
-import sys
-
-if sys.version_info > (3, 9):
-    from collections.abc import Callable
-else:
-    from typing import Callable
+from collections.abc import Callable
 from typing import Literal, Optional, TypeVar, Union
 
 from rdkit import Chem
