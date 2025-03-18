@@ -3,13 +3,9 @@ from typing import Literal, Optional, TypeVar, Union
 
 from rdkit import Chem
 
+from fragmenter.typing import SMARTS, SMILES
+
 T = TypeVar("T")
-
-SMILES = str
-"""SMILES type (string)"""
-
-SMARTS = str
-"""SMARTS type (string)"""
 
 
 class fragmenter:
@@ -193,7 +189,7 @@ class fragmenter:
                     "function_to_choose_fragmentation needs to be a function."
                 )
 
-            elif isinstance(
+            elif not isinstance(
                 function_to_choose_fragmentation([{}, {}]), (dict, list)
             ):
                 raise TypeError(
