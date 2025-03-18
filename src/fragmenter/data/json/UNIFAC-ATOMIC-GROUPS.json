@@ -294,8 +294,36 @@
     "CONH2": [
         "C(=O)[NH2]"
     ],
+    "CONHCH3": [
+        "C(=O)[NH][CH3]"
+    ],
+    "CONHCH2": [
+        "C(=O)[NH][CH2]"
+    ],
+    "CON(CH3)2": [
+        "C(=O)N([CH3])[CH3]"
+    ],
+    "CONCH3CH2": [
+        "C(=O)N([CH3])[CH2]"
+    ],
+    "CON(CH2)2": [
+        "C(=O)N([CH2])[CH2]"
+    ],
     "C2H5O2": [
         "[OH0;!$(OC=O);!R][CH2;!R][CH2;!R][OH]"
+    ],
+    "C2H4O2": [
+        "[OH0;!$(OC=O);!R][CH;!R][CH2;!R][OH]",
+        "[OH0;!$(OC=O);!R][CH2;!R][CH;!R][OH]"
+    ],
+    "CH3S": [
+        "[CH3]S"
+    ],
+    "CH2S": [
+        "[CH2]S"
+    ],
+    "CHS": [
+        "[CH]S"
     ],
     "MORPH": [
         "[CH2]1[CH2][NH][CH2][CH2]O1"
