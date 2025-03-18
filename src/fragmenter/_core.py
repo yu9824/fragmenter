@@ -360,7 +360,8 @@ class fragmenter:
             )
 
         temp_fragmentations, success = self.__complete_fragmentation(
-            mol_SMILES
+            mol_SMILES,
+            Chem.MolToSmiles(mol_SMILES),  # to canonicalize
         )
 
         fragmentations = []
@@ -719,7 +720,7 @@ class fragmenter:
         heavy_atom_count = fragmenter.get_heavy_atom_count(mol)
 
         if heavy_atom_count > self.n_heavy_atoms_cuttoff:
-            return {}, False
+            return [{}], False
 
         if self.match_hydrogens:
             target_atom_count = mol.GetNumAtoms()
@@ -817,7 +818,9 @@ class fragmenter:
                         self._fragmentation_scheme_pattern_lookup[smarts],
                         mol_searched_in,
                         canonical_SMILES_searched_in,
-                        atom_indices_included_in_fragmentation_so_far,
+                        # atom_indices_included_in_fragmentation_so_far,
+                        # HACK: is it?
+                        atom_indices_to_which_new_matches_have_to_be_adjacent,
                     )
 
                     for match in matches:
