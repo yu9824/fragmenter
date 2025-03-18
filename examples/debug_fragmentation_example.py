@@ -7,7 +7,7 @@
 #       format_version: '1.3'
 #       jupytext_version: 1.16.7
 #   kernelspec:
-#     display_name: base311
+#     display_name: py313
 #     language: python
 #     name: python3
 # ---
@@ -23,21 +23,47 @@
 from IPython.display import display
 
 from fragmenter import fragmenter
-from fragmenter_utils import draw_mol_with_highlights_and_legend, get_table_with_atom_properties_relevant_to_SMARTS
+from fragmenter.utils import (
+    draw_mol_with_highlights_and_legend,
+    get_table_with_atom_properties_relevant_to_SMARTS,
+)
 from rdkit import Chem
-import SMARTS
+from fragmenter.data import SMARTS_UNIFAC
 
-UNIFAC_SMARTS = SMARTS.UNIFAC.copy()
+# %%
+fragmentation_scheme = {
+    index: list(tup_smarts)
+    for index, tup_smarts in enumerate(SMARTS_UNIFAC.values(), start=1)
+}
+group_names = {
+    index: name for index, name in enumerate(SMARTS_UNIFAC.keys(), start=1)
+}
+simple_fragmenter = fragmenter(fragmentation_scheme, algorithm="simple")
+# simple_fragmenter = fragmenter(
+#     fragmentation_scheme,
+#     algorithm="complete",
+#     n_heavy_atoms_cuttoff=20,
+#     function_to_choose_fragmentation=lambda x: x[0],
+# )
 
-fragmentation_scheme = {i+1: j[1] for i, j in enumerate(UNIFAC_SMARTS)}
-simple_fragmenter = fragmenter(fragmentation_scheme, algorithm='simple')
+for i, smiles in enumerate(
+    [
+        "CC1=C(C(=CC(=C1Cl)Cl)Cl)Cl",
+        "CCC=CCC1=C(CCC1=O)Cc1ccccc1",
+        "CCC1=CC(=C(C=C1)CC)CC",
+    ]
+):
+    mol = Chem.MolFromSmiles(smiles)
+    fragmentation, success, fragmentation_matches = simple_fragmenter.fragment(
+        mol
+    )
 
-group_names = {k+1:v[0] for k,v  in enumerate(UNIFAC_SMARTS)}
-for i, SMILES in enumerate(['CC1=C(C(=CC(=C1Cl)Cl)Cl)Cl', 'CCC=CCC1=C(CCC1=O)Cc1ccccc1', 'CCC1=CC(=C(C=C1)CC)CC']):
-        mol = Chem.MolFromSmiles(SMILES)
-        fragmentation, success, fragmentation_matches = simple_fragmenter.fragment(mol)
-        img = draw_mol_with_highlights_and_legend(mol, fragmentation_matches, group_names)
-        _, _, _, formatted_rows = get_table_with_atom_properties_relevant_to_SMARTS(mol)
-        display(img)
-        print('\n'.join(formatted_rows))
-        
+    img = draw_mol_with_highlights_and_legend(
+        mol, fragmentation_matches, group_names
+    )
+    _, _, _, formatted_rows = (
+        get_table_with_atom_properties_relevant_to_SMARTS(mol)
+    )
+    display(img)
+    print("\n".join(formatted_rows))
+
