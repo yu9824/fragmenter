@@ -56,6 +56,9 @@ version = { attr = "fragmenter.__version__" }
 [tool.setuptools.packages.find]
 where = ["src/"]
 
+[tool.setuptools.package-data]
+"fragmenter.data.json" = ["*.json"]
+
 [tool.ruff]
 line-length = 79
 indent-width = 4
