@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "fragmenter"
 dynamic = ["version"]
-dependencies = []
+dependencies = ["rdkit"]
 requires-python = ">= 3.8"
 authors = [{ name = "yu9824" }, { name = "Simon" }]
 maintainers = [{ name = "yu9824" }]
@@ -29,7 +29,7 @@ classifiers = [
 [project.optional-dependencies]
 test = ["pytest"]
 dev = ["build"]
-optional = ["colorlog", "tqdm"]
+optional = ["colorlog", "tqdm"]                                                 # necessary to reproduce the original paper
 docs = ["sphinx", "sphinx_rtd_theme", "sphinx-markdown-tables", "recommonmark"]
 gui = ["TkEasyGUI"]
 
