@@ -1,11 +1,9 @@
 import io
-import random
 import math
+import random
 
 from PIL import Image, ImageDraw, ImageFont
-
 from rdkit import Chem
-from rdkit.Chem.rdchem import ChiralType
 from rdkit.Chem import AllChem
 from rdkit.Chem.Draw import rdMolDraw2D
 from rdkit.Chem.rdchem import ChiralType
@@ -67,10 +65,14 @@ def draw_mol_with_highlights_and_legend(
         ValueError: If the molecule consists of more than one fragment.
     """
     if len(Chem.GetMolFrags(mol)) != 1:
-        raise ValueError("This function can only handle molecules with one fragment.")
+        raise ValueError(
+            "This function can only handle molecules with one fragment."
+        )
 
     def get_bond_length_in_pixel(mol, img_width_and_height):
-        drawer = rdMolDraw2D.MolDraw2DCairo(img_width_and_height, img_width_and_height)
+        drawer = rdMolDraw2D.MolDraw2DCairo(
+            img_width_and_height, img_width_and_height
+        )
         drawer.DrawMolecule(mol)
         drawer.FinishDrawing()
         bonds = list(mol.GetBonds())
@@ -103,11 +105,15 @@ def draw_mol_with_highlights_and_legend(
         pixel_threshold = 70
         while bond_length_in_pixel < pixel_threshold:
             img_width_and_height = int(1.2 * img_width_and_height)
-            bond_length_in_pixel = get_bond_length_in_pixel(mol, img_width_and_height)
+            bond_length_in_pixel = get_bond_length_in_pixel(
+                mol, img_width_and_height
+            )
 
     size_multiplier = max(img_width_and_height / img_width_and_height_start, 1)
 
-    drawer = rdMolDraw2D.MolDraw2DCairo(img_width_and_height, img_width_and_height)
+    drawer = rdMolDraw2D.MolDraw2DCairo(
+        img_width_and_height, img_width_and_height
+    )
     drawer.drawOptions().addAtomIndices = True
     drawer.drawOptions().bondLineWidth = size_multiplier * 3
     drawer.drawOptions().addStereoAnnotation = True
@@ -170,7 +176,9 @@ def draw_mol_with_highlights_and_legend(
                     p1 = tuple(atom_coords.get(a1))
                     p2 = tuple(atom_coords.get(a2))
                     if p1 and p2:
-                        underlay_draw.line([p1, p2], fill=rgba_color, width=line_width)
+                        underlay_draw.line(
+                            [p1, p2], fill=rgba_color, width=line_width
+                        )
             # Highlight atoms in the group
             for atom_idx in group:
                 if atom_idx in atom_coords:
@@ -193,7 +201,9 @@ def draw_mol_with_highlights_and_legend(
                 p2 = tuple(atom_coords.get(bond.GetEndAtomIdx()))
                 if p1 and p2:
                     base_img_draw.line(
-                        [p1, p2], fill=line_color_aromatic, width=line_width_aromatic
+                        [p1, p2],
+                        fill=line_color_aromatic,
+                        width=line_width_aromatic,
                     )
         for atom in mol.GetAtoms():
             if atom.GetIsAromatic():
@@ -206,7 +216,9 @@ def draw_mol_with_highlights_and_legend(
                     y + circle_radius,
                 ]
                 underlay_draw.ellipse(
-                    bbox, outline=line_color_aromatic, width=line_width_aromatic
+                    bbox,
+                    outline=line_color_aromatic,
+                    width=line_width_aromatic,
                 )
 
     base_img = Image.alpha_composite(underlay, base_img)
@@ -215,7 +227,10 @@ def draw_mol_with_highlights_and_legend(
     border_width = 5
     bordered_img = Image.new(
         "RGBA",
-        (base_img.width + 2 * border_width, base_img.height + 2 * border_width),
+        (
+            base_img.width + 2 * border_width,
+            base_img.height + 2 * border_width,
+        ),
         (240, 240, 240, 255),
     )
     bordered_img.paste(base_img, (border_width, border_width), base_img)
@@ -243,10 +258,14 @@ def draw_mol_with_highlights_and_legend(
     except IOError:
         font = ImageFont.load_default()
     title_text = "Description"
-    title_width, title_height = get_text_size(legend_draw, title_text, font=font)
+    title_width, title_height = get_text_size(
+        legend_draw, title_text, font=font
+    )
     title_x = int(bordered_img.width + (legend_width - title_width) / 2)
     title_y = margin
-    legend_draw.text((title_x, title_y), title_text, fill=(0, 0, 0, 255), font=font)
+    legend_draw.text(
+        (title_x, title_y), title_text, fill=(0, 0, 0, 255), font=font
+    )
 
     current_y = title_y + title_height + margin
     box_size = 20 * size_multiplier
@@ -266,13 +285,16 @@ def draw_mol_with_highlights_and_legend(
         r, b, g, a = original_color
         ratio_actual = a / 255
         actual_color = [
-            ((ratio_actual * v) + (1 - ratio_actual) * 255) for v in original_color[:3]
+            ((ratio_actual * v) + (1 - ratio_actual) * 255)
+            for v in original_color[:3]
         ]
         actual_color = tuple([int(min(max(v, 0), 255)) for v in actual_color])
 
         try:
             legend_draw.rounded_rectangle(
-                [rect_x0, rect_y0, rect_x1, rect_y1], radius=4, fill=actual_color
+                [rect_x0, rect_y0, rect_x1, rect_y1],
+                radius=4,
+                fill=actual_color,
             )
         except AttributeError:
             legend_draw.rectangle(
@@ -287,7 +309,9 @@ def draw_mol_with_highlights_and_legend(
         text_y = int(
             rect_y0 + (box_size - text_height) / 2
         )  # Center the text vertically
-        legend_draw.text((text_x, text_y), text, fill=(0, 0, 0, 255), font=font)
+        legend_draw.text(
+            (text_x, text_y), text, fill=(0, 0, 0, 255), font=font
+        )
         current_y += box_size + spacing
 
     if has_aromatic_info:
@@ -296,14 +320,18 @@ def draw_mol_with_highlights_and_legend(
         text = "arom. atom/bond"
         _, text_height = get_text_size(legend_draw, text, font=font)
         text_x = line_x1 + spacing
-        text_y = int(current_y + (box_size - text_height) / 2)  # Center vertically
+        text_y = int(
+            current_y + (box_size - text_height) / 2
+        )  # Center vertically
         line_y = int(text_y + box_size / 2)
         legend_draw.line(
             [(line_x0, line_y), (line_x1, line_y)],
             fill=line_color_aromatic,
             width=line_width_aromatic,
         )
-        legend_draw.text((text_x, text_y), text, fill=(0, 0, 0, 255), font=font)
+        legend_draw.text(
+            (text_x, text_y), text, fill=(0, 0, 0, 255), font=font
+        )
 
     return final_img
 
