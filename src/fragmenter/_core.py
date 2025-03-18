@@ -104,7 +104,7 @@ class fragmenter:
         if not atom_indices_to_which_new_matches_have_to_be_adjacent:
             return list(matches)
 
-        valid_matches: list[tuple[int, ...]] = []
+        valid_matches: list[tuple[int, ...]] = list()
         adjancency_matrix = self.get_adjacency_matrix(
             mol_searched_in, canonical_SMILES_searched_in
         )
@@ -122,7 +122,7 @@ class fragmenter:
         self,
         fragmentation_scheme: dict[
             int, Union[list[SMARTS], SMARTS]
-        ] = {},  # FIXME: should be Sequence[SMARTS] only
+        ] = dict(),  # FIXME: should be Sequence[SMARTS] only
         fragmentation_scheme_order: Optional[list[int]] = None,
         match_hydrogens: bool = False,
         algorithm: Optional[Literal["simple", "complete", "combined"]] = None,
@@ -225,12 +225,12 @@ class fragmenter:
         self.fragmentation_scheme = fragmentation_scheme
 
         # create lookup dictionaries to faster finding a group number
-        self._fragmentation_scheme_group_number_lookup: dict[str, int] = {}
+        self._fragmentation_scheme_group_number_lookup: dict[str, int] = dict()
         self._fragmentation_scheme_pattern_lookup: dict[
             SMARTS, Chem.rdchem.Mol
-        ] = {}
+        ] = dict()
         self.fragmentation_scheme_order = fragmentation_scheme_order
-        self._adjacency_matrix_cache: dict[SMILES, list[set[int]]] = {}
+        self._adjacency_matrix_cache: dict[SMILES, list[set[int]]] = dict()
 
         for group_number, list_SMARTS in fragmentation_scheme.items():
             # FIXME: Should not use this. Use Sequence all even if length==1.
@@ -284,10 +284,10 @@ class fragmenter:
             complete_mol = SMILES_or_molecule
 
         # iterate over all separated molecules
-        success: list[bool] = []
+        success: list[bool] = list()
         # there is the same name local variable in other methods. this is complicated
-        fragmentation: dict[int, int] = {}
-        fragmentation_matches: dict[int, list[tuple[int, ...]]] = {}
+        fragmentation: dict[int, int] = dict()
+        fragmentation_matches: dict[int, list[tuple[int, ...]]] = dict()
         frags: tuple[Chem.rdchem.Mol] = fragmenter.rdmolops.GetMolFrags(
             complete_mol, asMols=True
         )
@@ -304,7 +304,7 @@ class fragmenter:
 
                 if group_number not in fragmentation:
                     fragmentation[group_number] = 0
-                    fragmentation_matches[group_number] = []
+                    fragmentation_matches[group_number] = list()
 
                 fragmentation[group_number] += len(matches)
                 fragmentation_matches[group_number].extend(matches)
@@ -360,12 +360,12 @@ class fragmenter:
             Chem.MolToSmiles(mol_SMILES),  # to canonicalize
         )
 
-        fragmentations = []
-        fragmentations_matches = []
+        fragmentations = list()
+        fragmentations_matches = list()
         for temp_fragmentation in temp_fragmentations:
             # FIXME: same name but diffarent variables
-            fragmentation: dict[int, int] = {}
-            fragmentation_matches = {}
+            fragmentation: dict[int, int] = dict()
+            fragmentation_matches = dict()
             for smarts, matches in temp_fragmentation.items():
                 group_number = self._fragmentation_scheme_group_number_lookup[
                     smarts
@@ -399,7 +399,7 @@ class fragmenter:
                 - success (bool): True if a complete fragmentation was achieved, False otherwise.
         """
         success = False
-        fragmentation: Union[dict[SMARTS, list[tuple[int, ...]]]]
+        fragmentation: Union[dict[SMARTS, list[tuple[int, ...]]]] = dict()
         if self.algorithm in ["simple", "combined"]:
             fragmentation, success = self.__simple_fragmentation(
                 mol, canonical_SMILES
@@ -443,7 +443,7 @@ class fragmenter:
             target_atom_count = fragmenter.get_heavy_atom_count(mol)
 
         success = False
-        fragmentation: dict[SMARTS, list[tuple[int, ...]]] = {}
+        fragmentation: dict[SMARTS, list[tuple[int, ...]]] = dict()
 
         fragmentation, atom_indices_included_in_fragmentation = (
             self.__search_non_overlapping_solution(
@@ -605,7 +605,7 @@ class fragmenter:
         if canonical_SMILES in self._adjacency_matrix_cache:
             return self._adjacency_matrix_cache[canonical_SMILES]
 
-        adjancency_matrix: list[set[int]] = []
+        adjancency_matrix: list[set[int]] = list()
         for atom in mol.GetAtoms():
             assert isinstance(atom, Chem.rdchem.Atom)
             adjancency_matrix.append(
@@ -657,7 +657,7 @@ class fragmenter:
 
             atom_to_smart_mapping: dict[
                 int, list[tuple[SMARTS, tuple[int, ...]]]
-            ] = {}
+            ] = dict()
             for smart, atoms_found in fragmentation.items():
                 for atoms in atoms_found:
                     for atom in atoms:
@@ -723,12 +723,12 @@ class fragmenter:
         else:
             target_atom_count = heavy_atom_count
 
-        completed_fragmentations: list[
-            dict[SMARTS, list[tuple[int, ...]]]
-        ] = []
+        completed_fragmentations: list[dict[SMARTS, list[tuple[int, ...]]]] = (
+            list()
+        )
         groups_leading_to_incomplete_fragmentations: list[
             dict[SMARTS, list[tuple[int, ...]]]
-        ] = []
+        ] = list()
         (
             completed_fragmentations,
             groups_leading_to_incomplete_fragmentations,
@@ -878,7 +878,7 @@ class fragmenter:
                         this_SMARTS_atom_indices_included_in_fragmentation_so_far = atom_indices_included_in_fragmentation_so_far.copy()
 
                         if smarts not in this_SMARTS_fragmentation_so_far:
-                            this_SMARTS_fragmentation_so_far[smarts] = []
+                            this_SMARTS_fragmentation_so_far[smarts] = list()
 
                         this_SMARTS_fragmentation_so_far[smarts].append(match)
                         this_SMARTS_atom_indices_included_in_fragmentation_so_far.update(
@@ -941,7 +941,7 @@ class fragmenter:
             if not incomplete_fragmentation_found:
                 incomplete_matched_groups: dict[
                     SMARTS, list[tuple[int, ...]]
-                ] = {}
+                ] = dict()
 
                 if len(atom_indices_included_in_fragmentation_so_far) > 0:
                     unassignes_atom_indices = set(
@@ -966,7 +966,7 @@ class fragmenter:
                                         ):
                                             incomplete_matched_groups[
                                                 found_smarts
-                                            ] = []
+                                            ] = list()
 
                                         if (
                                             found_match
@@ -978,7 +978,7 @@ class fragmenter:
                                                 found_smarts
                                             ].append(found_match)
                     is_subset_of_groups_already_found: bool = False
-                    indexes_to_remove: list[int] = []
+                    indexes_to_remove: list[int] = list()
 
                     for (
                         group_index,
