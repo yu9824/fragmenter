@@ -1,5 +1,7 @@
 # custom
 .vscode/*
+examples/**/*.png
+examples/**/*.log
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
