@@ -1,4 +1,5 @@
 import operator
+from pathlib import Path
 from pprint import pprint
 
 from rdkit import Chem
@@ -6,6 +7,8 @@ from rdkit import Chem
 from fragmenter import fragmenter
 from fragmenter.data import SMARTS_UNIFAC
 from fragmenter.utils import draw_mol_with_highlights_and_legend
+
+DIRPATH_WORK = Path(__file__).parent.resolve()
 
 sorted_group_names_as_in_paper = [
     "Furfural",
@@ -176,7 +179,7 @@ for i, SMILES in enumerate(smiles):
     mol = Chem.MolFromSmiles(SMILES)
     fragmentation, success, fragmentation_matches = frg.fragment(mol)
     img = draw_mol_with_highlights_and_legend(mol, fragmentation_matches)
-    img.save(f"simple_example{i + 1}.png")
+    img.save(DIRPATH_WORK / f"simple_example{i + 1}.png")
 
 print()
 print("simple algorithm 2")

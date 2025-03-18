@@ -8,7 +8,11 @@ from fragmenter import fragmenter
 from fragmenter.data import SMARTS_UNIFAC
 from fragmenter.utils import draw_mol_with_highlights_and_legend
 
-DIRPATH_CSV = Path(__file__).parent.resolve()
+DIRPATH_WORK = Path(__file__).parent.resolve()
+
+list_SMARTS_UNIFAC = [
+    (name, list_smarts) for name, list_smarts in SMARTS_UNIFAC.items()
+]
 
 
 def info_to_CSV(inchikey, SMILES, pubchem_id, fragmentation):
@@ -100,7 +104,7 @@ def log_structure_results(
 
         for group_number in sorted_group_number:
             f.write(
-                (SMARTS_UNIFAC[group_number - 1][0]).ljust(12, " ")
+                (list_SMARTS_UNIFAC[group_number - 1][0]).ljust(12, " ")
                 + "\t"
                 + str(group_number).ljust(8, " ")
                 + str(fragmentation[group_number]).ljust(8, " ")
@@ -115,7 +119,7 @@ def log_structure_results(
 
         for group_number in sorted_group_number:
             f.write(
-                (SMARTS_UNIFAC[group_number - 1][0]).ljust(12, " ")
+                (list_SMARTS_UNIFAC[group_number - 1][0]).ljust(12, " ")
                 + "\t"
                 + str(group_number).ljust(8, " ")
                 + str(fragmentation_reference_DB[group_number]).ljust(8, " ")
@@ -265,23 +269,23 @@ sorted_group_names_as_in_paper = [
 ]
 for group_name in groups_not_on_DDB_list:
     sorted_group_names_as_in_paper.remove(group_name)
-    for i, (gn, sm) in enumerate(SMARTS_UNIFAC):
+    for i, (gn, sm) in enumerate(list_SMARTS_UNIFAC):
         if gn == group_name:
-            SMARTS_UNIFAC[i] = (group_name, "")
+            list_SMARTS_UNIFAC[i] = (group_name, "")
 
 # get the fragmentation scheme in the format necessary
-fragmentation_scheme = {i + 1: j[1] for i, j in enumerate(SMARTS_UNIFAC)}
+fragmentation_scheme = {i + 1: j[1] for i, j in enumerate(list_SMARTS_UNIFAC)}
 
-temp = {j[0]: i + 1 for i, j in enumerate(SMARTS_UNIFAC)}
+temp = {j[0]: i + 1 for i, j in enumerate(list_SMARTS_UNIFAC)}
 sorted_group_numbers_as_in_paper = [
     temp[group_name] for group_name in sorted_group_names_as_in_paper
 ]
 
 if set(sorted_group_names_as_in_paper).union(
     set(groups_not_on_DDB_list)
-) != set([t[0] for t in SMARTS_UNIFAC]) or len(
+) != set([t[0] for t in list_SMARTS_UNIFAC]) or len(
     sorted_group_names_as_in_paper
-) + len(groups_not_on_DDB_list) != len(SMARTS_UNIFAC):
+) + len(groups_not_on_DDB_list) != len(list_SMARTS_UNIFAC):
     raise ValueError(
         'Missmatch of groups. If you are getting this error, \
                      you probably changed a group name, deleted or added one group. \
@@ -290,7 +294,7 @@ if set(sorted_group_names_as_in_paper).union(
 
 # first step: fragment reference database and compare with the results
 reference_DB = []
-with open(DIRPATH_CSV / "reference_DB.csv", mode="r", encoding="utf-8") as f:
+with open(DIRPATH_WORK / "reference_DB.csv", mode="r", encoding="utf-8") as f:
     for line in f.readlines():
         reference_DB.append(CSV_to_info(line, True))
 
@@ -312,7 +316,7 @@ complete_fragmenter = fragmenter(
 )
 
 # examples of fragmentation drawing
-group_names = {k + 1: v[0] for k, v in enumerate(SMARTS_UNIFAC)}
+group_names = {k + 1: v[0] for k, v in enumerate(list_SMARTS_UNIFAC)}
 for i, SMILES in enumerate(
     [
         "CC1=C(C(=CC(=C1Cl)Cl)Cl)Cl",
@@ -327,7 +331,7 @@ for i, SMILES in enumerate(
     img = draw_mol_with_highlights_and_legend(
         mol, fragmentation_matches, group_names
     )
-    img.save(f"example{i + 1}.png")
+    img.save(DIRPATH_WORK / f"example{i + 1}.png")
 
 # without sorting the patterns
 print("####################################################################")
@@ -338,11 +342,13 @@ print(
 # I don't know why, but for the unordered group search I am not getting the same result as the old algorithm
 with (
     open(
-        "reference_DB_simple_fragmentation_without_pattern_sorting_results.log",
+        DIRPATH_WORK
+        / "reference_DB_simple_fragmentation_without_pattern_sorting_results.log",
         "w+",
     ) as f_simple,
     open(
-        "reference_DB_complete_fragmentation_without_pattern_sorting_results.log",
+        DIRPATH_WORK
+        / "reference_DB_complete_fragmentation_without_pattern_sorting_results.log",
         "w+",
     ) as f_complete,
 ):
@@ -491,11 +497,13 @@ print(
 # with the sorted groups I am getting the same result as the old algorithm
 with (
     open(
-        "reference_DB_simple_fragmentation_with_pattern_sorting_results.log",
+        DIRPATH_WORK
+        / "reference_DB_simple_fragmentation_with_pattern_sorting_results.log",
         "w+",
     ) as f_simple,
     open(
-        "reference_DB_complete_fragmentation_with_pattern_sorting_results.log",
+        DIRPATH_WORK
+        / "reference_DB_complete_fragmentation_with_pattern_sorting_results.log",
         "w+",
     ) as f_complete,
 ):
@@ -629,7 +637,7 @@ print("")
 
 # second step: try to fragent all from the component
 structures_DB = []
-with open(DIRPATH_CSV / "structures_DB.csv", mode="r", encoding="utf-8") as f:
+with open(DIRPATH_WORK / "structures_DB.csv", mode="r", encoding="utf-8") as f:
     for line in f.readlines():
         structures_DB.append(CSV_to_info(line))
 
@@ -653,7 +661,8 @@ print(
     "Fragmenting the structures database with the patterns sorted (combined algorithm)"
 )
 with open(
-    "structures_DB_combined_fragmentation_with_pattern_sorting_results.log",
+    DIRPATH_WORK
+    / "structures_DB_combined_fragmentation_with_pattern_sorting_results.log",
     "w+",
 ) as f_combined:
     for inchikey, SMILES, pubchem_id, empty_fragmentation in tqdm(
