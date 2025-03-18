@@ -1,3 +1,17 @@
+from collections.abc import Callable
+from typing import Literal, Optional, TypeVar, Union
+
+from rdkit import Chem
+
+T = TypeVar("T")
+
+SMILES = str
+"""SMILES type (string)"""
+
+SMARTS = str
+"""SMARTS type (string)"""
+
+
 class fragmenter:
     """Class for fragmenting molecules based on predefined SMARTS patterns and algorithms.
 
@@ -25,7 +39,7 @@ class fragmenter:
     from rdkit.Chem import rdmolops
 
     @staticmethod
-    def deep_copy(obj):
+    def deep_copy(obj: T) -> T:
         """Perform a deep copy of an object using marshal serialization.
 
         This method is based on the approach described in:
@@ -37,10 +51,14 @@ class fragmenter:
         Returns:
             A deep copy of the input object.
         """
-        return fragmenter.marshal.loads(fragmenter.marshal.dumps(obj))
+        return fragmenter.marshal.loads(
+            fragmenter.marshal.dumps(
+                obj  # type: ignore[arg-type]
+            )
+        )
 
     @staticmethod
-    def get_heavy_atom_count(mol):
+    def get_heavy_atom_count(mol: Chem.rdchem.Mol):
         """Count the number of heavy (non-hydrogen) atoms in a molecule.
 
         Args:
@@ -49,15 +67,19 @@ class fragmenter:
         Returns:
             int: The count of heavy atoms in the molecule.
         """
-        return sum(atom.GetAtomicNum() != 1 for atom in mol.GetAtoms())
+        return sum(
+            atom.GetAtomicNum() != 1
+            for atom in mol.GetAtoms()
+            if isinstance(atom, Chem.rdchem.Atom)  # for typing
+        )
 
     def get_substruct_matches(
         self,
-        mol_searched_for,
-        mol_searched_in,
-        canonical_SMILES_searched_in,
-        atom_indices_to_which_new_matches_have_to_be_adjacent,
-    ):
+        mol_searched_for: Chem.rdchem.Mol,
+        mol_searched_in: Chem.rdchem.Mol,
+        canonical_SMILES_searched_in: SMILES,
+        atom_indices_to_which_new_matches_have_to_be_adjacent: set[int],
+    ) -> list[tuple[int, ...]]:
         """Retrieve substructure matches from a molecule that are adjacent to specified atom indices.
 
         This method performs a substructure search and then filters the matches to include only those that are
@@ -77,14 +99,16 @@ class fragmenter:
         if mol_searched_in.GetNumAtoms() < mol_searched_for.GetNumAtoms():
             return []
 
-        matches = mol_searched_in.GetSubstructMatches(mol_searched_for)
+        matches: tuple[tuple[int, ...]] = mol_searched_in.GetSubstructMatches(
+            mol_searched_for
+        )
         if not matches:
             return []
 
         if not atom_indices_to_which_new_matches_have_to_be_adjacent:
             return list(matches)
 
-        valid_matches = []
+        valid_matches: list[tuple[int, ...]] = []
         adjancency_matrix = self.get_adjacency_matrix(
             mol_searched_in, canonical_SMILES_searched_in
         )
@@ -100,13 +124,18 @@ class fragmenter:
 
     def __init__(
         self,
-        fragmentation_scheme={},
-        fragmentation_scheme_order=None,
-        match_hydrogens=False,
-        algorithm="",
-        n_heavy_atoms_cuttoff=-1,
-        function_to_choose_fragmentation=False,
-        n_max_fragmentations_to_find=-1,
+        fragmentation_scheme: dict[
+            int, Union[list[SMARTS], SMARTS]
+        ] = {},  # FIXME: should be Sequence[SMARTS] only
+        fragmentation_scheme_order: Optional[list[int]] = None,
+        match_hydrogens: bool = False,
+        algorithm: Optional[Literal["simple", "complete", "combined"]] = None,
+        n_heavy_atoms_cuttoff: int = -1,
+        function_to_choose_fragmentation: Callable[
+            [list[dict[SMARTS, list[tuple[int, ...]]]]],
+            dict[SMARTS, list[tuple[int, ...]]],
+        ] = lambda x: x[0],
+        n_max_fragmentations_to_find: int = -1,
     ):
         """Initialize the fragmenter with a fragmentation scheme and algorithm parameters.
 
@@ -118,8 +147,8 @@ class fragmenter:
             algorithm (str): Algorithm to use for fragmentation; must be one of 'simple', 'complete', or 'combined'.
             n_heavy_atoms_cuttoff (int, optional): Maximum number of heavy atoms allowed for fragmentation in
                 'complete' or 'combined' algorithms. Defaults to -1.
-            function_to_choose_fragmentation (callable or bool, optional): Function to select the best fragmentation
-                among possible fragmentations. Required for 'complete' or 'combined' algorithms. Defaults to False.
+            function_to_choose_fragmentation (callable, optional): Function to select the best fragmentation
+                among possible fragmentations. Required for 'complete' or 'combined' algorithms. Defaults to select the first candidate.
             n_max_fragmentations_to_find (int, optional): Maximum number of fragmentations to find.
                 Defaults to -1 (no limit) for the 'simple' algorithm.
 
@@ -159,23 +188,22 @@ class fragmenter:
                     "n_atoms_cuttoff needs to be specified for complete or combined algorithms."
                 )
 
-            if function_to_choose_fragmentation == False:
-                raise ValueError(
-                    "function_to_choose_fragmentation needs to be specified for complete or combined algorithms."
-                )
-
             if not callable(function_to_choose_fragmentation):
                 raise TypeError(
                     "function_to_choose_fragmentation needs to be a function."
                 )
+
+            elif isinstance(
+                function_to_choose_fragmentation([{}, {}]), (dict, list)
+            ):
+                raise TypeError(
+                    "function_to_choose_fragmentation needs to take a list of fragmentations and return one fragmentation or a list of fragmentations."
+                )
+
             else:
-                if type(function_to_choose_fragmentation([{}, {}])) not in [
-                    dict,
-                    list,
-                ]:
-                    raise TypeError(
-                        "function_to_choose_fragmentation needs to take a list of fragmentations and return one fragmentation or a list of fragmentations."
-                    )
+                self.function_to_choose_fragmentation = (
+                    function_to_choose_fragmentation
+                )
 
             if n_max_fragmentations_to_find != -1:
                 if n_max_fragmentations_to_find < 1:
@@ -200,32 +228,31 @@ class fragmenter:
 
         self.fragmentation_scheme = fragmentation_scheme
 
-        self.function_to_choose_fragmentation = (
-            function_to_choose_fragmentation
-        )
-
         # create lookup dictionaries to faster finding a group number
-        self._fragmentation_scheme_group_number_lookup = {}
-        self._fragmentation_scheme_pattern_lookup = {}
+        self._fragmentation_scheme_group_number_lookup: dict[str, int] = {}
+        self._fragmentation_scheme_pattern_lookup: dict[
+            SMARTS, Chem.rdchem.Mol
+        ] = {}
         self.fragmentation_scheme_order = fragmentation_scheme_order
-        self._adjacency_matrix_cache = {}
+        self._adjacency_matrix_cache: dict[SMILES, list[set[int]]] = {}
 
         for group_number, list_SMARTS in fragmentation_scheme.items():
-            if type(list_SMARTS) is not list:
+            # FIXME: Should not use this. Use Sequence all even if length==1.
+            if not isinstance(list_SMARTS, list):
                 list_SMARTS = [list_SMARTS]
 
-            for SMARTS in list_SMARTS:
-                if SMARTS != "":
-                    self._fragmentation_scheme_group_number_lookup[SMARTS] = (
+            for smarts in list_SMARTS:
+                if smarts != "":
+                    self._fragmentation_scheme_group_number_lookup[smarts] = (
                         group_number
                     )
 
-                    mol_SMARTS = fragmenter.Chem.MolFromSmarts(SMARTS)
-                    self._fragmentation_scheme_pattern_lookup[SMARTS] = (
+                    mol_SMARTS = fragmenter.Chem.MolFromSmarts(smarts)
+                    self._fragmentation_scheme_pattern_lookup[smarts] = (
                         mol_SMARTS
                     )
 
-    def fragment(self, SMILES_or_molecule):
+    def fragment(self, SMILES_or_molecule: Union[Chem.rdchem.Mol, SMILES]):
         """Fragment a molecule using the configured fragmentation scheme and algorithm.
 
         This method processes the molecule—converting from a SMILES string if necessary—and applies the
@@ -261,21 +288,22 @@ class fragmenter:
             complete_mol = SMILES_or_molecule
 
         # iterate over all separated molecules
-        success = []
-        fragmentation = {}
-        fragmentation_matches = {}
-        frags = list(
-            fragmenter.rdmolops.GetMolFrags(complete_mol, asMols=True)
+        success: list[bool] = []
+        # there is the same name local variable in other methods. this is complicated
+        fragmentation: dict[int, int] = {}
+        fragmentation_matches: dict[int, list[tuple[int, ...]]] = {}
+        frags: tuple[Chem.rdchem.Mol] = fragmenter.rdmolops.GetMolFrags(
+            complete_mol, asMols=True
         )
         for mol in frags:
-            SMILES = fragmenter.Chem.MolToSmiles(mol)
+            smiles = fragmenter.Chem.MolToSmiles(mol)
             this_mol_fragmentation, this_mol_success = (
-                self.__get_fragmentation(mol, SMILES)
+                self.__get_fragmentation(mol, smiles)
             )
 
-            for SMARTS, matches in this_mol_fragmentation.items():
+            for smarts, matches in this_mol_fragmentation.items():
                 group_number = self._fragmentation_scheme_group_number_lookup[
-                    SMARTS
+                    smarts
                 ]
 
                 if group_number not in fragmentation:
@@ -289,7 +317,9 @@ class fragmenter:
 
         return fragmentation, all(success), fragmentation_matches
 
-    def fragment_complete(self, SMILES_or_molecule):
+    def fragment_complete(
+        self, SMILES_or_molecule: Union[SMILES, Chem.rdchem.Mol]
+    ):
         """Perform complete fragmentation on a single-fragment molecule.
 
         This method only accepts molecules with a single connected component and attempts to find
@@ -307,7 +337,7 @@ class fragmenter:
         Raises:
             ValueError: If a provided SMILES string is invalid or if the molecule consists of multiple fragments.
         """
-        if type(SMILES_or_molecule) is str:
+        if isinstance(SMILES_or_molecule, str):
             mol_SMILES = fragmenter.Chem.MolFromSmiles(SMILES_or_molecule)
             mol_SMILES = (
                 fragmenter.Chem.AddHs(mol_SMILES)
@@ -336,11 +366,12 @@ class fragmenter:
         fragmentations = []
         fragmentations_matches = []
         for temp_fragmentation in temp_fragmentations:
-            fragmentation = {}
+            # FIXME: same name but diffarent variables
+            fragmentation: dict[int, int] = {}
             fragmentation_matches = {}
-            for SMARTS, matches in temp_fragmentation.items():
+            for smarts, matches in temp_fragmentation.items():
                 group_number = self._fragmentation_scheme_group_number_lookup[
-                    SMARTS
+                    smarts
                 ]
 
                 fragmentation[group_number] = len(matches)
@@ -351,7 +382,11 @@ class fragmenter:
 
         return fragmentations, success, fragmentations_matches
 
-    def __get_fragmentation(self, mol, canonical_SMILES):
+    # TODO: This is hard to understand
+    # when 'simple' returns (dict, bool) but 'complete' returns (list, bool)
+    def __get_fragmentation(
+        self, mol: Chem.rdchem.Mol, canonical_SMILES: SMILES
+    ) -> tuple[dict[SMARTS, list[tuple[int, ...]]], bool]:
         """Retrieve a fragmentation solution for a molecule.
 
         This method first attempts a simple fragmentation and, if unsuccessful, resorts to a complete fragmentation.
@@ -367,14 +402,14 @@ class fragmenter:
                 - success (bool): True if a complete fragmentation was achieved, False otherwise.
         """
         success = False
-        fragmentation = {}
+        fragmentation: Union[dict[SMARTS, list[tuple[int, ...]]]]
         if self.algorithm in ["simple", "combined"]:
             fragmentation, success = self.__simple_fragmentation(
                 mol, canonical_SMILES
             )
 
-        if success:
-            return fragmentation, success
+            if success:
+                return fragmentation, success
 
         if self.algorithm in ["combined", "complete"]:
             fragmentations, success = self.__complete_fragmentation(
@@ -388,7 +423,9 @@ class fragmenter:
 
         return fragmentation, success
 
-    def __simple_fragmentation(self, mol, canonical_SMILES):
+    def __simple_fragmentation(
+        self, mol: Chem.rdchem.Mol, canonical_SMILES: SMILES
+    ):
         """Attempt to fragment a molecule using the simple algorithm.
 
         The simple algorithm searches for non-overlapping substructure matches iteratively and,
@@ -409,7 +446,7 @@ class fragmenter:
             target_atom_count = fragmenter.get_heavy_atom_count(mol)
 
         success = False
-        fragmentation = {}
+        fragmentation: dict[SMARTS, list[tuple[int, ...]]] = {}
 
         fragmentation, atom_indices_included_in_fragmentation = (
             self.__search_non_overlapping_solution(
@@ -456,11 +493,11 @@ class fragmenter:
 
     def __search_non_overlapping_solution(
         self,
-        mol_searched_in,
-        canonical_SMILES_searched_in,
-        fragmentation,
-        atom_indices_included_in_fragmentation,
-        atom_indices_to_which_new_matches_have_to_be_adjacent,
+        mol_searched_in: Chem.rdchem.Mol,
+        canonical_SMILES_searched_in: SMILES,
+        fragmentation: dict[SMARTS, list[tuple[int, ...]]],
+        atom_indices_included_in_fragmentation: set[int],
+        atom_indices_to_which_new_matches_have_to_be_adjacent: set[int],
     ):
         """Iteratively search for non-overlapping substructure matches to fragment the molecule.
 
@@ -487,18 +524,19 @@ class fragmenter:
             for group_number in self.fragmentation_scheme_order:
                 list_SMARTS = self.fragmentation_scheme[group_number]
 
+                # FIXME
                 if isinstance(list_SMARTS, str):
                     list_SMARTS = [list_SMARTS]
 
-                for SMARTS in list_SMARTS:
-                    if SMARTS:
+                for smarts in list_SMARTS:
+                    if smarts:
                         (
                             fragmentation,
                             atom_indices_included_in_fragmentation,
                         ) = self.__get_next_non_overlapping_match(
                             mol_searched_in,
                             canonical_SMILES_searched_in,
-                            SMARTS,
+                            smarts,
                             fragmentation,
                             atom_indices_included_in_fragmentation,
                             atom_indices_to_which_new_matches_have_to_be_adjacent,
@@ -508,13 +546,13 @@ class fragmenter:
 
     def __get_next_non_overlapping_match(
         self,
-        mol_searched_in,
-        canonical_SMILES_searched_in,
-        SMARTS,
-        fragmentation,
-        atom_indices_included_in_fragmentation,
-        atom_indices_to_which_new_matches_have_to_be_adjacent,
-    ):
+        mol_searched_in: Chem.rdchem.Mol,
+        canonical_SMILES_searched_in: SMILES,
+        smarts: SMARTS,
+        fragmentation: dict[SMARTS, list[tuple[int, ...]]],
+        atom_indices_included_in_fragmentation: set[int],
+        atom_indices_to_which_new_matches_have_to_be_adjacent: set[int],
+    ) -> tuple[dict, set[int]]:
         """Find and record the next non-overlapping substructure match for a given SMARTS pattern.
 
         Searches for substructure matches in the molecule that are adjacent to specified atom indices and
@@ -534,13 +572,13 @@ class fragmenter:
                 - fragmentation (dict): Updated fragmentation mapping with the new match, if found.
                 - atom_indices_included_in_fragmentation (set): Updated set of atom indices assigned.
         """
-        mol_searched_for = self._fragmentation_scheme_pattern_lookup[SMARTS]
+        mol_searched_for = self._fragmentation_scheme_pattern_lookup[smarts]
 
         matches = self.get_substruct_matches(
             mol_searched_for,
             mol_searched_in,
             canonical_SMILES_searched_in,
-            atom_indices_to_which_new_matches_have_to_be_adjacent or None,
+            atom_indices_to_which_new_matches_have_to_be_adjacent,
         )
 
         if not matches:
@@ -548,12 +586,14 @@ class fragmenter:
 
         for match in matches:
             if atom_indices_included_in_fragmentation.isdisjoint(match):
-                fragmentation.setdefault(SMARTS, []).append(match)
+                fragmentation.setdefault(smarts, []).append(match)
                 atom_indices_included_in_fragmentation.update(match)
 
         return fragmentation, atom_indices_included_in_fragmentation
 
-    def get_adjacency_matrix(self, mol, canonical_SMILES):
+    def get_adjacency_matrix(
+        self, mol: Chem.rdchem.Mol, canonical_SMILES: str
+    ) -> list[set[int]]:
         """Compute and cache the adjacency matrix for a molecule.
 
         The adjacency matrix is represented as a list of sets, where each set contains the indices of neighboring atoms.
@@ -568,10 +608,15 @@ class fragmenter:
         if canonical_SMILES in self._adjacency_matrix_cache:
             return self._adjacency_matrix_cache[canonical_SMILES]
 
-        adjancency_matrix = []
+        adjancency_matrix: list[set[int]] = []
         for atom in mol.GetAtoms():
+            assert isinstance(atom, Chem.rdchem.Atom)
             adjancency_matrix.append(
-                {neighbor.GetIdx() for neighbor in atom.GetNeighbors()}
+                {
+                    neighbor.GetIdx()
+                    for neighbor in atom.GetNeighbors()
+                    if isinstance(neighbor, Chem.rdchem.Atom)
+                }
             )
 
         self._adjacency_matrix_cache[canonical_SMILES] = adjancency_matrix
@@ -579,12 +624,12 @@ class fragmenter:
 
     def __clean_molecule_surrounding_unmatched_atoms(
         self,
-        mol_searched_in,
-        canonical_SMILES_searched_in,
-        fragmentation,
-        atom_indices_included_in_fragmentation,
-        level,
-    ):
+        mol_searched_in: Chem.rdchem.Mol,
+        canonical_SMILES_searched_in: SMILES,
+        fragmentation: dict[SMARTS, list[tuple[int, ...]]],
+        atom_indices_included_in_fragmentation: set[int],
+        level: int,
+    ) -> tuple[dict[SMARTS, list[tuple[int, ...]]], set[int]]:
         """Clean the fragmentation by removing matches that are adjacent to unmatched atoms.
 
         This method refines the current fragmentation by iteratively removing substructure matches
@@ -613,7 +658,9 @@ class fragmenter:
 
             new_fragmentation = fragmenter.deep_copy(fragmentation)
 
-            atom_to_smart_mapping = {}
+            atom_to_smart_mapping: dict[
+                int, list[tuple[SMARTS, tuple[int, ...]]]
+            ] = {}
             for smart, atoms_found in fragmentation.items():
                 for atoms in atoms_found:
                     for atom in atoms:
@@ -651,7 +698,9 @@ class fragmenter:
 
         return fragmentation, atom_indices_included_in_fragmentation
 
-    def __complete_fragmentation(self, mol, canonical_SMILES):
+    def __complete_fragmentation(
+        self, mol: Chem.rdchem.Mol, canonical_SMILES: SMILES
+    ) -> tuple[list[dict[SMARTS, list[tuple[int, ...]]]], bool]:
         """Perform a complete fragmentation search on a molecule within a heavy atom count cutoff.
 
         This method recursively searches for all possible complete fragmentations that cover the entire molecule,
@@ -664,6 +713,7 @@ class fragmenter:
         Returns:
             tuple: A tuple containing:
                 - completed_fragmentations (list): A list of fragmentation mappings (SMARTS to match lists).
+                  Displays all matching patterns.
                 - success (bool): True if at least one complete fragmentation was found, False otherwise.
         """
         heavy_atom_count = fragmenter.get_heavy_atom_count(mol)
@@ -676,8 +726,12 @@ class fragmenter:
         else:
             target_atom_count = heavy_atom_count
 
-        completed_fragmentations = []
-        groups_leading_to_incomplete_fragmentations = []
+        completed_fragmentations: list[
+            dict[SMARTS, list[tuple[int, ...]]]
+        ] = []
+        groups_leading_to_incomplete_fragmentations: list[
+            dict[SMARTS, list[tuple[int, ...]]]
+        ] = []
         (
             completed_fragmentations,
             groups_leading_to_incomplete_fragmentations,
@@ -694,19 +748,20 @@ class fragmenter:
             self.n_max_fragmentations_to_find,
         )
         success = len(completed_fragmentations) > 0
-
         return completed_fragmentations, success
 
     def __get_next_non_overlapping_adjacent_match_recursively(
         self,
-        mol_searched_in,
-        canonical_SMILES_searched_in,
-        target_atom_count,
-        completed_fragmentations,
-        groups_leading_to_incomplete_fragmentations,
-        fragmentation_so_far,
-        atom_indices_included_in_fragmentation_so_far,
-        atom_indices_to_which_new_matches_have_to_be_adjacent,
+        mol_searched_in: Chem.rdchem.Mol,
+        canonical_SMILES_searched_in: SMILES,
+        target_atom_count: int,
+        completed_fragmentations: list[dict[SMARTS, list[tuple[int, ...]]]],
+        groups_leading_to_incomplete_fragmentations: list[
+            dict[SMARTS, list[tuple[int, ...]]]
+        ],
+        fragmentation_so_far: dict[SMARTS, list[tuple[int, ...]]],
+        atom_indices_included_in_fragmentation_so_far: set[int],
+        atom_indices_to_which_new_matches_have_to_be_adjacent: set[int],
         n_max_fragmentations_to_find=-1,
     ):
         """Recursively search for non-overlapping adjacent substructure matches to achieve complete fragmentation.
@@ -749,16 +804,17 @@ class fragmenter:
             if complete_fragmentation_found:
                 break
 
-            if type(list_SMARTS) is not list:
+            # FIXME:
+            if not isinstance(list_SMARTS, list):
                 list_SMARTS = [list_SMARTS]
 
-            for SMARTS in list_SMARTS:
+            for smarts in list_SMARTS:
                 if complete_fragmentation_found:
                     break
 
-                if SMARTS != "":
+                if smarts != "":
                     matches = self.get_substruct_matches(
-                        self._fragmentation_scheme_pattern_lookup[SMARTS],
+                        self._fragmentation_scheme_pattern_lookup[smarts],
                         mol_searched_in,
                         canonical_SMILES_searched_in,
                         atom_indices_included_in_fragmentation_so_far,
@@ -794,12 +850,12 @@ class fragmenter:
                         for (
                             completed_fragmentation
                         ) in completed_fragmentations:
-                            if SMARTS not in completed_fragmentation:
+                            if smarts not in completed_fragmentation:
                                 continue
 
                             if n_found_groups_so_far == 0:
                                 use_this_match = not self.__is_match_contained_in_fragmentation(
-                                    match, SMARTS, completed_fragmentation
+                                    match, smarts, completed_fragmentation
                                 )
                             else:
                                 if self.__is_fragmentation_subset_of_other_fragmentation(
@@ -807,7 +863,7 @@ class fragmenter:
                                     completed_fragmentation,
                                 ):
                                     use_this_match = not self.__is_match_contained_in_fragmentation(
-                                        match, SMARTS, completed_fragmentation
+                                        match, smarts, completed_fragmentation
                                     )
 
                             if not use_this_match:
@@ -822,10 +878,10 @@ class fragmenter:
                         )
                         this_SMARTS_atom_indices_included_in_fragmentation_so_far = atom_indices_included_in_fragmentation_so_far.copy()
 
-                        if SMARTS not in this_SMARTS_fragmentation_so_far:
-                            this_SMARTS_fragmentation_so_far[SMARTS] = []
+                        if smarts not in this_SMARTS_fragmentation_so_far:
+                            this_SMARTS_fragmentation_so_far[smarts] = []
 
-                        this_SMARTS_fragmentation_so_far[SMARTS].append(match)
+                        this_SMARTS_fragmentation_so_far[smarts].append(match)
                         this_SMARTS_atom_indices_included_in_fragmentation_so_far.update(
                             match
                         )
@@ -884,7 +940,9 @@ class fragmenter:
         # if until here no new fragmentation was found check whether an incomplete fragmentation was found
         if n_completed_fragmentations == len(completed_fragmentations):
             if not incomplete_fragmentation_found:
-                incomplete_matched_groups = {}
+                incomplete_matched_groups: dict[
+                    SMARTS, list[tuple[int, ...]]
+                ] = {}
 
                 if len(atom_indices_included_in_fragmentation_so_far) > 0:
                     unassignes_atom_indices = set(
@@ -920,9 +978,8 @@ class fragmenter:
                                             incomplete_matched_groups[
                                                 found_smarts
                                             ].append(found_match)
-
-                    is_subset_of_groups_already_found = False
-                    indexes_to_remove = []
+                    is_subset_of_groups_already_found: bool = False
+                    indexes_to_remove: list[int] = []
 
                     for (
                         group_index,
@@ -990,8 +1047,8 @@ class fragmenter:
         return True
 
     def __is_match_contained_in_fragmentation(
-        self, match, SMARTS, fragmentation
-    ):
+        self, match, smarts, fragmentation
+    ) -> bool:
         """Check if a specific match is already contained within a fragmentation mapping for a given SMARTS pattern.
 
         Args:
@@ -1002,13 +1059,9 @@ class fragmenter:
         Returns:
             bool: True if the match is already present in the fragmentation mapping, False otherwise.
         """
-        if SMARTS not in fragmentation:
+        if smarts not in fragmentation:
             return False
 
-        found_matches_set = {frozenset(i) for i in fragmentation[SMARTS]}
+        found_matches_set = {frozenset(i) for i in fragmentation[smarts]}
 
         return frozenset(match) in found_matches_set
-
-
-if __name__ == "__main__":
-    main()
