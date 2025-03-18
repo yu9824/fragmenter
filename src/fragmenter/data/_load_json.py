@@ -6,8 +6,15 @@ from typing import Union
 from fragmenter.typing import SMARTS
 
 FILEPATH_JSON_DATA = Path(__file__).parent.resolve() / "json"
-if not FILEPATH_JSON_DATA.is_dir():
-    raise ValueError("'data' is not packaged")
+
+
+def _check_is_dir() -> bool:
+    if not FILEPATH_JSON_DATA.is_dir():
+        raise ValueError("'data/json' is not packaged")
+    return True
+
+
+_check_is_dir()
 
 
 def __load_json_atomic_groups(
