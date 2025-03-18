@@ -1,3 +1,11 @@
+# FRAGMENTER
+
+## Install
+
+```bash
+pip install git+https://github.com/yu9824/fragmenter.git
+```
+
 ***This repository is forked from [simonmb/fragmentation_algorithm](https://github.com/simonmb/fragmentation_algorithm).***
 
 > # fragmentation_algorithm (new version)
