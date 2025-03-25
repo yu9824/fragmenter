@@ -5,9 +5,9 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.16.7
+#       jupytext_version: 1.16.6
 #   kernelspec:
-#     display_name: py313
+#     display_name: py311
 #     language: python
 #     name: python3
 # ---
@@ -24,6 +24,7 @@ from IPython.display import display
 
 from fragmenter import fragmenter
 from fragmenter.utils import (
+    calculate_fragment_scheme_order,
     draw_mol_with_highlights_and_legend,
     get_table_with_atom_properties_relevant_to_SMARTS,
 )
@@ -35,14 +36,19 @@ fragmentation_scheme = {
     index: list(tup_smarts)
     for index, tup_smarts in enumerate(SMARTS_UNIFAC.values(), start=1)
 }
+fragmentation_scheme_order = calculate_fragment_scheme_order(
+    fragmentation_scheme
+)
 group_names = {
     index: name for index, name in enumerate(SMARTS_UNIFAC.keys(), start=1)
 }
-simple_fragmenter = fragmenter(fragmentation_scheme, algorithm="simple")
+simple_fragmenter = fragmenter(
+    fragmentation_scheme, fragmentation_scheme_order, algorithm="simple"
+)
 # simple_fragmenter = fragmenter(
 #     fragmentation_scheme,
+#     fragmentation_scheme_order,
 #     algorithm="complete",
-#     n_heavy_atoms_cuttoff=20,
 #     function_to_choose_fragmentation=lambda x: x[0],
 # )
 
