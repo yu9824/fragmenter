@@ -1,7 +1,10 @@
-from collections.abc import Callable
+import marshal as marshal
+import warnings
+from collections.abc import Callable, Sequence
 from typing import Literal, Optional, TypeVar, Union
 
 from rdkit import Chem
+from rdkit.Chem import rdmolops
 
 from fragmenter.typing import SMARTS, SMILES
 
@@ -28,12 +31,6 @@ class fragmenter:
         _adjacency_matrix_cache (dict): Cache for storing computed adjacency matrices keyed by canonical SMILES.
     """
 
-    import marshal as marshal
-    import warnings
-
-    from rdkit import Chem
-    from rdkit.Chem import rdmolops
-
     @staticmethod
     def deep_copy(obj: T) -> T:
         """Perform a deep copy of an object using marshal serialization.
@@ -47,8 +44,8 @@ class fragmenter:
         Returns:
             A deep copy of the input object.
         """
-        return fragmenter.marshal.loads(
-            fragmenter.marshal.dumps(
+        return marshal.loads(
+            marshal.dumps(
                 obj  # type: ignore[arg-type]
             )
         )
@@ -120,9 +117,7 @@ class fragmenter:
 
     def __init__(
         self,
-        fragmentation_scheme: dict[
-            int, Union[list[SMARTS], SMARTS]
-        ] = dict(),  # FIXME: should be Sequence[SMARTS] only
+        fragmentation_scheme: dict[int, Sequence[SMARTS]] = dict(),
         fragmentation_scheme_order: Optional[list[int]] = None,
         match_hydrogens: bool = False,
         algorithm: Optional[Literal["simple", "complete", "combined"]] = None,
@@ -209,10 +204,10 @@ class fragmenter:
 
         if fragmentation_scheme_order is None:
             fragmentation_scheme_order = list(
-                fragmentation_scheme
+                fragmentation_scheme.keys()
             )  # sort to get reproducible results
             if algorithm in ["simple", "combined"]:
-                self.warnings.warn(
+                warnings.warn(
                     "No especific fragmentation_scheme_order was given, you might get better results if you specify the order in which the groups are searched for."
                 )
 
@@ -232,18 +227,14 @@ class fragmenter:
         self.fragmentation_scheme_order = fragmentation_scheme_order
         self._adjacency_matrix_cache: dict[SMILES, list[set[int]]] = dict()
 
-        for group_number, list_SMARTS in fragmentation_scheme.items():
-            # FIXME: Should not use this. Use Sequence all even if length==1.
-            if not isinstance(list_SMARTS, list):
-                list_SMARTS = [list_SMARTS]
-
-            for smarts in list_SMARTS:
+        for group_number in fragmentation_scheme:
+            for smarts in fragmentation_scheme[group_number]:
                 if smarts != "":
                     self._fragmentation_scheme_group_number_lookup[smarts] = (
                         group_number
                     )
 
-                    mol_SMARTS = fragmenter.Chem.MolFromSmarts(smarts)
+                    mol_SMARTS = Chem.MolFromSmarts(smarts)
                     self._fragmentation_scheme_pattern_lookup[smarts] = (
                         mol_SMARTS
                     )
@@ -266,10 +257,10 @@ class fragmenter:
         Raises:
             ValueError: If a provided SMILES string is invalid.
         """
-        if isinstance(SMILES_or_molecule, str):
-            complete_mol = fragmenter.Chem.MolFromSmiles(SMILES_or_molecule)
+        if isinstance(SMILES_or_molecule, SMILES):
+            complete_mol = Chem.MolFromSmiles(SMILES_or_molecule)
             complete_mol = (
-                fragmenter.Chem.AddHs(complete_mol)
+                Chem.AddHs(complete_mol)
                 if self.match_hydrogens
                 else complete_mol
             )
@@ -290,11 +281,11 @@ class fragmenter:
         fragmentation_matches: dict[int, list[tuple[int, ...]]] = dict()
 
         # split molecules
-        frags: tuple[Chem.rdchem.Mol, ...] = fragmenter.rdmolops.GetMolFrags(
+        frags: tuple[Chem.rdchem.Mol, ...] = rdmolops.GetMolFrags(
             complete_mol, asMols=True
         )
         for mol in frags:
-            smiles = fragmenter.Chem.MolToSmiles(mol)
+            smiles: SMILES = Chem.MolToSmiles(mol)
             this_mol_fragmentation, this_mol_success = (
                 self.__get_fragmentation(mol, smiles)
             )
@@ -335,12 +326,10 @@ class fragmenter:
         Raises:
             ValueError: If a provided SMILES string is invalid or if the molecule consists of multiple fragments.
         """
-        if isinstance(SMILES_or_molecule, str):
-            mol_SMILES = fragmenter.Chem.MolFromSmiles(SMILES_or_molecule)
+        if isinstance(SMILES_or_molecule, SMILES):
+            mol_SMILES = Chem.MolFromSmiles(SMILES_or_molecule)
             mol_SMILES = (
-                fragmenter.Chem.AddHs(mol_SMILES)
-                if self.match_hydrogens
-                else mol_SMILES
+                Chem.AddHs(mol_SMILES) if self.match_hydrogens else mol_SMILES
             )
             is_valid_SMILES = mol_SMILES is not None
 
@@ -352,7 +341,7 @@ class fragmenter:
         else:
             mol_SMILES = SMILES_or_molecule
 
-        if len(fragmenter.rdmolops.GetMolFrags(mol_SMILES)) != 1:
+        if len(rdmolops.GetMolFrags(mol_SMILES)) != 1:
             raise ValueError(
                 "fragment_complete does not accept multifragment molecules."
             )
@@ -521,13 +510,7 @@ class fragmenter:
             prev_count = len(atom_indices_included_in_fragmentation)
 
             for group_number in self.fragmentation_scheme_order:
-                list_SMARTS = self.fragmentation_scheme[group_number]
-
-                # FIXME
-                if isinstance(list_SMARTS, str):
-                    list_SMARTS = [list_SMARTS]
-
-                for smarts in list_SMARTS:
+                for smarts in self.fragmentation_scheme[group_number]:
                     if smarts:
                         (
                             fragmentation,
@@ -798,16 +781,10 @@ class fragmenter:
             )
 
         for group_number in self.fragmentation_scheme_order:
-            list_SMARTS = self.fragmentation_scheme[group_number]
-
             if complete_fragmentation_found:
                 break
 
-            # FIXME:
-            if not isinstance(list_SMARTS, list):
-                list_SMARTS = [list_SMARTS]
-
-            for smarts in list_SMARTS:
+            for smarts in self.fragmentation_scheme[group_number]:
                 if complete_fragmentation_found:
                     break
 
