@@ -95,8 +95,8 @@ class fragmenter:
         if mol_searched_in.GetNumAtoms() < mol_searched_for.GetNumAtoms():
             return []
 
-        matches: tuple[tuple[int, ...]] = mol_searched_in.GetSubstructMatches(
-            mol_searched_for
+        matches: tuple[tuple[int, ...], ...] = (
+            mol_searched_in.GetSubstructMatches(mol_searched_for)
         )
         if not matches:
             return []
@@ -288,7 +288,9 @@ class fragmenter:
         # there is the same name local variable in other methods. this is complicated
         fragmentation: dict[int, int] = dict()
         fragmentation_matches: dict[int, list[tuple[int, ...]]] = dict()
-        frags: tuple[Chem.rdchem.Mol] = fragmenter.rdmolops.GetMolFrags(
+
+        # split molecules
+        frags: tuple[Chem.rdchem.Mol, ...] = fragmenter.rdmolops.GetMolFrags(
             complete_mol, asMols=True
         )
         for mol in frags:
@@ -379,8 +381,8 @@ class fragmenter:
 
         return fragmentations, success, fragmentations_matches
 
-    # TODO: This is hard to understand
     # when 'simple' returns (dict, bool) but 'complete' returns (list, bool)
+    # -> Now both return tuple[dict[SMARTS, list[tuple[int, ...]]], bool]
     def __get_fragmentation(
         self, mol: Chem.rdchem.Mol, canonical_SMILES: SMILES
     ) -> tuple[dict[SMARTS, list[tuple[int, ...]]], bool]:
