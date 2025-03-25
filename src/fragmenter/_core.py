@@ -136,8 +136,9 @@ class fragmenter:
                 Defaults to None.
             match_hydrogens (bool, optional): Whether to include hydrogens in matching. Defaults to False.
             algorithm (str): Algorithm to use for fragmentation; must be one of 'simple', 'complete', or 'combined'.
-            n_heavy_atoms_cuttoff (int, optional): Maximum number of heavy atoms allowed for fragmentation in
+            n_heavy_atoms_cuttoff (Optional[int], optional): Maximum number of heavy atoms allowed for fragmentation in
                 'complete' or 'combined' algorithms. Defaults to -1.
+                '-1' means no limit.
             function_to_choose_fragmentation (callable, optional): Function to select the best fragmentation
                 among possible fragmentations. Required for 'complete' or 'combined' algorithms. Defaults to select the first candidate.
             n_max_fragmentations_to_find (int, optional): Maximum number of fragmentations to find.
@@ -174,10 +175,10 @@ class fragmenter:
         self.algorithm = algorithm
 
         if algorithm in ["combined", "complete"]:
-            if n_heavy_atoms_cuttoff == -1:
-                raise ValueError(
-                    "n_atoms_cuttoff needs to be specified for complete or combined algorithms."
-                )
+            # if n_heavy_atoms_cuttoff == -1:
+            #     raise ValueError(
+            #         "n_atoms_cuttoff needs to be specified for complete or combined algorithms."
+            #     )
 
             if not callable(function_to_choose_fragmentation):
                 raise TypeError(
@@ -700,7 +701,10 @@ class fragmenter:
         """
         heavy_atom_count = fragmenter.get_heavy_atom_count(mol)
 
-        if heavy_atom_count > self.n_heavy_atoms_cuttoff:
+        if (
+            self.n_heavy_atoms_cuttoff >= 0
+            and heavy_atom_count > self.n_heavy_atoms_cuttoff
+        ):
             return [{}], False
 
         if self.match_hydrogens:
